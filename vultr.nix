@@ -7,11 +7,19 @@
   boot.loader.grub.enable = true;
   boot.loader.grub.version = 2;
   boot.loader.grub.device = "/dev/vda";
-        
+
+  networking.interfaces.ens7 = {
+    useDHCP=true;
+    mtu = 1450;
+  };
+  
+  services.ntp.enable                     = true;
+  
   services.openssh.enable = true;
   services.openssh.permitRootLogin = "yes";
   services.openssh.passwordAuthentication = false;
   services.openssh.challengeResponseAuthentication = false;
+  services.openssh.allowSFTP              = false;
       
   time.timeZone = "America/New_York";
       
