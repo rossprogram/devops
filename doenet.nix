@@ -11,7 +11,7 @@
   webserver = { config, pkgs, nodes, ... }:
   let
     theServer = pkgs.callPackage ../lrs/default.nix { yarn2nix = pkgs.yarn2nix-moretea; };
-  in {
+  in rec {
     deployment.targetHost = "45.77.159.207";
 
     networking.extraHosts = "${(builtins.head nodes.database.config.networking.interfaces.ens7.ipv4.addresses).address} db";
@@ -24,17 +24,49 @@
       mongodb redis theServer
     ];
     
-    services.nginx.enable = true;
+    services.nginx = {
+      enable = true;
+      
+      # Use recommended settings
+      recommendedGzipSettings = true;
+      recommendedOptimisation = true;
+      recommendedProxySettings = true;
+      recommendedTlsSettings = true;
+    };
+    
     services.nginx.virtualHosts."api.doenet.cloud" = {
       forceSSL = true;
       enableACME = true;
+      default = true;
       root = "/var/www/api.doenet.cloud";
+      locations = {
+        "/".proxyPass = "http://localhost:${systemd.services.node.environment.PORT}";
+      };
     };
 
     security.acme.certs = {
       "api.doenet.cloud".email = "fowler@doenet.org";
     };
 
+    systemd.services.node = {
+      description = "node service";
+      # Start the service after the network is available
+      after = [ "network.target" ];
+      environment = {
+        PORT = "4000"; # FIXME
+      };
+      serviceConfig = {
+        ExecStart = "${theServer}/bin/doenet-lrs";
+        User = "doenet";
+        Restart = "always";
+      };
+      wantedBy = [ "default.target" ];
+    };
+   
+    users.extraUsers = {
+      doenet = { };
+    };
+   
     networking.firewall.allowedTCPPorts = [ 80 443 ];
   };
 
