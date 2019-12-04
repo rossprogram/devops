@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -11,6 +12,10 @@
   networking.interfaces.ens7 = {
     useDHCP=true;
     mtu = 1450;
+    ipv4.addresses = [ {
+      address = config.networking.privateIPv4;
+      prefixLength = 20;
+    } ];
   };
   
   services.ntp.enable                     = true;

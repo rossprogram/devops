@@ -13,13 +13,10 @@
     theServer = pkgs.callPackage ../lrs/default.nix { yarn2nix = pkgs.yarn2nix-moretea; };
   in rec {
     deployment.targetHost = "45.77.159.207";
+    networking.privateIPv4 = "10.1.96.4"; 
 
-    networking.extraHosts = "${(builtins.head nodes.database.config.networking.interfaces.ens7.ipv4.addresses).address} db";
-    networking.interfaces.ens7.ipv4.addresses = [ {
-      address = "10.1.96.4";
-      prefixLength = 20;
-    } ];
-
+    networking.extraHosts = "${nodes.database.config.networking.privateIPv4} db";
+    
     environment.systemPackages = with pkgs; [
       mongodb redis theServer
     ];
@@ -53,7 +50,8 @@
       # Start the service after the network is available
       after = [ "network.target" ];
       environment = {
-        PORT = "4000"; # FIXME
+        PORT = "4000";
+        NODE_ENV = "production";
       };
       serviceConfig = {
         ExecStart = "${theServer}/bin/doenet-lrs";
@@ -74,22 +72,18 @@
   database = { config, pkgs, ... }:
   rec {
     deployment.targetHost = "149.28.42.92";
+    networking.privateIPv4 = "10.1.96.4";
     
-    networking.interfaces.ens7.ipv4.addresses = [ {
-      address = "10.1.96.3";
-      prefixLength = 20;
-    } ];
-
     services.redis = {
       enable = true;
-      bind = (builtins.head networking.interfaces.ens7.ipv4.addresses).address;
+      bind = networking.privateIPv4;
       port = 6379;
       requirePass = "HjIDNDNfoVoCF2AJwy";
     };
     
     services.mongodb = {
       enable = true;
-      bind_ip = (builtins.head networking.interfaces.ens7.ipv4.addresses).address;
+      bind_ip = networking.privateIPv4;
       enableAuth = true;
       initialRootPassword = "VKVdXULvL60hkO4L";
     };
