@@ -47,18 +47,31 @@
 
     systemd.services.node = {
       description = "node service";
-      # Start the service after the network is available
+
       after = [ "network.target" ];
+      wantedBy = [ "default.target" ];
+            
       environment = {
         PORT = "4000";
         NODE_ENV = "production";
+        
+        MONGODB_DATABASE = "lrs";
+        MONGODB_PASS = nodes.database.config.services.mongodb.initialRootPassword;
+        MONGODB_USER = "root";
+        MONGODB_HOST = nodes.database.config.services.mongodb.bind_ip;
+        MONGODB_PORT = 27017;
+
+        REDIS_HOST = nodes.database.config.services.redis.bind;
+        REDIS_PORT = nodes.database.config.services.redis.port;
+        REDIS_PASS = nodes.database.config.services.redis.requirePass;
+        SECRET = builtins.readFile ./secret.key;
       };
+      
       serviceConfig = {
         ExecStart = "${theServer}/bin/doenet-lrs";
         User = "doenet";
         Restart = "always";
       };
-      wantedBy = [ "default.target" ];
     };
    
     users.extraUsers = {
@@ -78,14 +91,14 @@
       enable = true;
       bind = networking.privateIPv4;
       port = 6379;
-      requirePass = "HjIDNDNfoVoCF2AJwy";
+      requirePass = builtins.readFile ./redis.key;
     };
     
     services.mongodb = {
       enable = true;
       bind_ip = networking.privateIPv4;
       enableAuth = true;
-      initialRootPassword = "VKVdXULvL60hkO4L";
+      initialRootPassword = builtins.readFile ./mongodb.key;
     };
 
     networking.firewall.interfaces.ens7.allowedTCPPorts = [ services.redis.port 27017 ];
