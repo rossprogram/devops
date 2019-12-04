@@ -10,6 +10,7 @@
   ################################################################
   webserver = { config, pkgs, nodes, ... }:
   let
+    # build the backend node app
     theServer = pkgs.callPackage ../lrs/default.nix { yarn2nix = pkgs.yarn2nix-moretea; };
   in rec {
     deployment.targetHost = "45.77.159.207";
@@ -73,7 +74,8 @@
         Restart = "always";
       };
     };
-   
+
+    # for "security" do not run the node app as root
     users.extraUsers = {
       doenet = { };
     };
