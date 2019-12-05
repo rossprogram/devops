@@ -12,7 +12,7 @@
   let
     # build the backend node app
     theServer = pkgs.callPackage ../lrs/default.nix { yarn2nix = pkgs.yarn2nix-moretea; };
-  in rec {
+  in {
     deployment.targetHost = "45.77.159.207";
     networking.privateIPv4 = "10.1.96.4"; 
 
@@ -38,7 +38,7 @@
       default = true;
       root = "/var/www/api.doenet.cloud";
       locations = {
-        "/".proxyPass = "http://localhost:${systemd.services.node.environment.PORT}";
+        "/".proxyPass = "http://localhost:${config.systemd.services.node.environment.PORT}";
       };
     };
 
@@ -55,17 +55,21 @@
       environment = {
         PORT = "4000";
         NODE_ENV = "production";
+
+        SECRET = builtins.readFile ./secret.key;
         
         MONGODB_DATABASE = "lrs";
+        MONGODB_USER = "lrs";
         MONGODB_PASS = nodes.database.config.services.mongodb.initialRootPassword;
-        MONGODB_USER = "root";
         MONGODB_HOST = nodes.database.config.services.mongodb.bind_ip;
-        MONGODB_PORT = 27017;
+        MONGODB_PORT = toString 27017;
 
         REDIS_HOST = nodes.database.config.services.redis.bind;
-        REDIS_PORT = nodes.database.config.services.redis.port;
+        REDIS_PORT = toString nodes.database.config.services.redis.port;
         REDIS_PASS = nodes.database.config.services.redis.requirePass;
-        SECRET = builtins.readFile ./secret.key;
+
+        LOGGLY_TOKEN = builtins.readFile ./loggly.key;
+        LOGGLY_SUBDOMAIN = "doenet";
       };
       
       serviceConfig = {
@@ -85,24 +89,24 @@
 
   ################################################################
   database = { config, pkgs, ... }:
-  rec {
+  {
     deployment.targetHost = "149.28.42.92";
-    networking.privateIPv4 = "10.1.96.4";
+    networking.privateIPv4 = "10.1.96.3";
     
     services.redis = {
       enable = true;
-      bind = networking.privateIPv4;
+      bind = config.networking.privateIPv4;
       port = 6379;
       requirePass = builtins.readFile ./redis.key;
     };
-    
+
     services.mongodb = {
       enable = true;
-      bind_ip = networking.privateIPv4;
+      bind_ip = config.networking.privateIPv4;
       enableAuth = true;
       initialRootPassword = builtins.readFile ./mongodb.key;
     };
 
-    networking.firewall.interfaces.ens7.allowedTCPPorts = [ services.redis.port 27017 ];
+    networking.firewall.interfaces.ens7.allowedTCPPorts = [ config.services.redis.port 27017 ];
   };
 }

@@ -71,6 +71,14 @@ nixops deploy
 ```
 Note that this also builds the LRS backend via [a nix expression](https://github.com/Doenet/lrs/blob/master/default.nix).
 
+It does not create the appropriate databases though.  For this,
+```
+mongo 10.1.96.3/admin -u root -p PASSWORD
+use lrs
+db.createUser( {user:"lrs", pwd: "...", roles: [ { role: "readWrite", db:"lrs" } ] } )
+```
+
+
 ## The library
 
 The [JavaScript library](https://github.com/doenet/api) is made
