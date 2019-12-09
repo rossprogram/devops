@@ -11,7 +11,7 @@
   webserver = { config, pkgs, nodes, ... }:
   let
     # build the backend node app
-    theServer = pkgs.callPackage ../lrs/default.nix { yarn2nix = pkgs.yarn2nix-moretea; };
+    theServer = pkgs.callPackage ../service/default.nix { yarn2nix = pkgs.yarn2nix-moretea; };
   in {
     deployment.targetHost = "45.77.159.207";
     networking.privateIPv4 = "10.1.96.4"; 
@@ -39,6 +39,14 @@
       root = "/var/www/api.doenet.cloud";
       locations = {
         "/".proxyPass = "http://localhost:${config.systemd.services.node.environment.PORT}";
+
+        "=/iframe.js" = {
+          root = "${theServer}/dist/";
+          extraConfig = ''
+            etag off;
+            add_header etag "\"${builtins.substring 11 32 theServer.outPath}\"";
+          '';
+        };
       };
     };
 
@@ -73,7 +81,7 @@
       };
       
       serviceConfig = {
-        ExecStart = "${theServer}/bin/doenet-lrs";
+        ExecStart = "${theServer}/bin/doenet-service";
         User = "doenet";
         Restart = "always";
       };
