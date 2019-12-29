@@ -58,7 +58,7 @@ in
       default = true;
       root = "/var/www/api.rossprogram.org";
       locations = {
-        "/".proxyPass = "http://localhost:${config.systemd.services.node.environment.PORT}";
+        "/".proxyPass = "http://localhost:${config.systemd.services.node.environment.PORT}/";
       };
     };
     
@@ -76,12 +76,18 @@ in
         PORT = "4000";
         NODE_ENV = "production";
         SECRET = builtins.readFile ./secret.key;
+        
+        SMTP_HOST = "email-smtp.us-east-1.amazonaws.com";
+        SMTP_PORT = "465";
+        SMTP_USER = "AKIAY4INV4Z4X3M2DKRS";
+        SMTP_PASS = builtins.readFile ./smtp.key;
+        
         MONGODB_DATABASE = "ross";
         MONGODB_PORT = toString 27017;
       };
       
       serviceConfig = {
-        ExecStart = "${theServer}/bin/ross-service";
+        ExecStart = "${theServer}/bin/rossprogram-api";
         User = "ross";
         Restart = "always";
       };
