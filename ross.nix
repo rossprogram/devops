@@ -31,7 +31,7 @@ in
     deployment.ec2.accessKeyId = awsKeyId;
     deployment.ec2.region = region;
     deployment.ec2.instanceType = "t2.micro"; # a cheap one
-    deployment.ec2.ebsInitialRootDiskSize = 10; # GB
+    deployment.ec2.ebsInitialRootDiskSize = 30; # GB
     deployment.ec2.keyPair = resources.ec2KeyPairs.myKeyPair;
     deployment.ec2.associatePublicIpAddress = true;
     deployment.ec2.securityGroups = [ resources.ec2SecurityGroups.openPorts.name ];
@@ -76,7 +76,7 @@ in
         PORT = "4000";
         NODE_ENV = "production";
         SECRET = builtins.readFile ./secret.key;
-        
+        API_BASE = "https://api.rossprogram.org/";
         SMTP_HOST = "email-smtp.us-east-1.amazonaws.com";
         SMTP_PORT = "465";
         SMTP_USER = "AKIAY4INV4Z4X3M2DKRS";
