@@ -35,7 +35,8 @@ in
     deployment.ec2.keyPair = resources.ec2KeyPairs.myKeyPair;
     deployment.ec2.associatePublicIpAddress = true;
     deployment.ec2.securityGroups = [ resources.ec2SecurityGroups.openPorts.name ];
-    
+
+    nixpkgs.config.allowUnfree = true;
     environment.systemPackages = with pkgs; [
       pkgs.mongodb theServer
     ];
@@ -61,6 +62,8 @@ in
         "/".proxyPass = "http://localhost:${config.systemd.services.node.environment.PORT}/";
       };
     };
+
+    security.acme.acceptTerms = true;
     
     security.acme.certs = {
       "api.rossprogram.org".email = "fowler@rossprogram.org";
@@ -81,6 +84,8 @@ in
         SMTP_PORT = "465";
         SMTP_USER = "AKIAY4INV4Z4X3M2DKRS";
         SMTP_PASS = builtins.readFile ./smtp.key;
+        STRIPE_SECRET = builtins.readFile ./stripe.key;
+        STRIPE_PUBLIC = "pk_live_EVv0HE4EnEnGBfjY2iBzPnuS003Q0UNubO";
         
         MONGODB_DATABASE = "ross";
         MONGODB_PORT = toString 27017;
