@@ -86,7 +86,7 @@ in
         SMTP_PASS = builtins.readFile ./smtp.key;
         STRIPE_SECRET = builtins.readFile ./stripe.key;
         STRIPE_PUBLIC = "pk_live_EVv0HE4EnEnGBfjY2iBzPnuS003Q0UNubO";
-        
+        STRIPE_ENDPOINT_SECRET=builtins.readFile ./stripe-endpoint.key;
         MONGODB_DATABASE = "ross";
         MONGODB_PORT = toString 27017;
       };
