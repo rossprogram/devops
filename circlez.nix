@@ -55,7 +55,7 @@ in
       password = builtins.readFile ./murmur.key;
       port = mumblePort;
       extraConfig = ''
-        ice="tcp -h ${config.networking.privateIPv4} -p ${icePort}"
+        ice="tcp -h ${config.networking.privateIPv4} -p ${toString icePort}"
         icesecret=${builtins.readFile ./ice.key}
       ''; 
     };
