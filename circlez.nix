@@ -110,6 +110,9 @@ in
 
         MONGODB_DATABASE = "circlez";
         MONGODB_PORT = toString 27017;
+
+        AWS_ACCESS_KEY_ID=awsKeyId;
+        AWS_SECRET_ACCESS_KEY=builtins.readFile ./aws-secret.key;
         
         PRIVATE_KEY_PEM=builtins.readFile ./private-key.pem;
         PUBLIC_CERT_PEM=builtins.readFile ./public-cert.pem;
