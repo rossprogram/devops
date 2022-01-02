@@ -1,5 +1,5 @@
 let
-  awsKeyId = "AKIAIKTGPRS5TOHAMXPA";
+  awsKeyId = "AKIAI6QCDKDFAZFL5D5A"; # for fowler@rossprogram.org
   region = "us-east-2"; # for Ohio
   pkgs = import <nixpkgs> {};
 in

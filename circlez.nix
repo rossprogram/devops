@@ -15,19 +15,6 @@ in
     inherit region;
   };
   
-  resources.ec2SecurityGroups.openMurmurPorts = { resources, lib, ... }: {
-    accessKeyId = awsKeyId;
-    inherit region;
-    description = "Open ports for the murmur server";
-    rules = [
-      { toPort = 22; fromPort = 22; sourceIp = "0.0.0.0/0"; } # SSH
-      { toPort = mumblePort; fromPort = mumblePort; sourceIp = "0.0.0.0/0"; }
-
-      # this is frustrating -- nixops can't refer to nodes...privateIPv4 here?
-      { toPort = icePort; fromPort = icePort; sourceIp = "172.31.17.81/32"; }
-    ];
-  };
-
   resources.ec2SecurityGroups.openCirclezPorts = { resources, lib, ... }: {
     accessKeyId = awsKeyId;
     inherit region;
@@ -38,32 +25,6 @@ in
     ];
   };
 
-  
-  mumble = { resources, config, nodes, ... }:
-  {
-    deployment.targetEnv = "ec2";
-    deployment.ec2.accessKeyId = awsKeyId;
-    deployment.ec2.region = region;
-    deployment.ec2.instanceType = "t2.micro"; # a cheap one
-    deployment.ec2.ebsInitialRootDiskSize = 10; # GB
-    deployment.ec2.keyPair = resources.ec2KeyPairs.myKeyPair;
-    deployment.ec2.associatePublicIpAddress = true;
-    deployment.ec2.securityGroups = [ resources.ec2SecurityGroups.openMurmurPorts.name ];
-
-    services.murmur = {
-      enable = true;
-      password = builtins.readFile ./murmur.key;
-      port = mumblePort;
-      extraConfig = ''
-        ice="tcp -h ${config.networking.privateIPv4} -p ${toString icePort}"
-        icesecret=${builtins.readFile ./ice.key}
-      ''; 
-    };
-
-    networking.firewall.allowedTCPPorts = [ mumblePort icePort ];
-    networking.firewall.allowedUDPPorts = [ mumblePort ];
-  };
-  
   circlez = { resources, config, nodes, ... }:
   let
     # build the backend node app
@@ -101,7 +62,7 @@ in
 
         # murmur is the mumble server, i.e., the IP where we use ice
         # to control murmur
-        MURMUR_HOST=nodes.mumble.config.networking.privateIPv4;
+        MURMUR_HOST="127.0.0.1";
         MURMUR_PORT=toString icePort;
         MURMUR_ICE_SECRET=builtins.readFile ./ice.key;
           

@@ -48,3 +48,8 @@ mongo
 use ross
 ```
 
+# The IPFS server
+
+/dnsaddr/ipfs.rossprogram.org/tcp/4001/QmNjT28jp3MiaiMV9LTYPMwk1cSwDC5FNJURJTN23bxr4B
+
+/ip4/18.191.230.175/tcp/4001/ipfs/QmNjT28jp3MiaiMV9LTYPMwk1cSwDC5FNJURJTN23bxr4B
