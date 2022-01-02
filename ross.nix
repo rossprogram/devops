@@ -11,7 +11,7 @@ in
     inherit region;
   };
   
-  resources.ec2SecurityGroups.openPorts = { resources, lib, ... }: {
+  resources.ec2SecurityGroups.openPorts = { resources, ... }: {
     accessKeyId = awsKeyId;
     inherit region;
     rules = [
@@ -100,7 +100,9 @@ in
     
     # for "security" do not run the node app as root
     users.extraUsers = {
-      ross = { };
+      ross = {
+        isNormalUser = true;
+      };
     };
     
     networking.firewall.allowedTCPPorts = [ 80 443 ];
