@@ -35,7 +35,7 @@ in
     deployment.ec2.keyPair = resources.ec2KeyPairs.myKeyPair;
     deployment.ec2.associatePublicIpAddress = true;
     deployment.ec2.securityGroups = [ resources.ec2SecurityGroups.openPorts.name ];
-
+    
     nixpkgs.config.allowUnfree = true;
     environment.systemPackages = with pkgs; [
       pkgs.mongodb theServer
@@ -97,7 +97,7 @@ in
         Restart = "always";
       };
     };
-    
+
     # for "security" do not run the node app as root
     users.extraUsers = {
       ross = {
