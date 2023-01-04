@@ -89,6 +89,7 @@ in
         STRIPE_ENDPOINT_SECRET=builtins.readFile ./stripe-endpoint.key;
         MONGODB_DATABASE = "ross";
         MONGODB_PORT = toString 27017;
+        MONGODB_HOST = "127.0.0.1";
       };
       
       serviceConfig = {
